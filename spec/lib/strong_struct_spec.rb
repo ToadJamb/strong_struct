@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 RSpec.describe StrongStruct do
-  let(:klass) { described_class.new :city, :state, :zip }
-  let(:instance) { klass.new :city => 'Bucksnort', :state => 'TN' }
+  let(:klass) { described_class.new :city, 'state', :zip }
+  let(:instance) { klass.new 'city' => 'Bucksnort', :state => 'TN' }
 
   describe '.new' do
     subject { klass }
@@ -38,6 +38,19 @@ RSpec.describe StrongStruct do
         expect(subject.city).to eq 'Bucksnort'
         subject.city = 'Memphis'
         expect(subject.city).to eq 'Memphis'
+      end
+
+      describe '.attributes' do
+        subject { instance.attributes }
+
+        it 'returns a hash of the current attributes and values' do
+          expect(subject).to be_a Hash
+          expect(subject.keys).to match_array ['city', 'state', 'zip']
+
+          expect(subject['city']).to eq 'Bucksnort'
+          expect(subject['state']).to eq 'TN'
+          expect(subject['zip']).to eq nil
+        end
       end
     end
   end
