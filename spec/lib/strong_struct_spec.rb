@@ -2,7 +2,7 @@ require 'spec_helper'
 
 RSpec.describe StrongStruct do
   let(:klass) { described_class.new :city, :state, :zip }
-  let(:instance) { klass.new }
+  let(:instance) { klass.new :city => 'Bucksnort', :state => 'TN' }
 
   describe '.new' do
     subject { klass }
@@ -32,6 +32,12 @@ RSpec.describe StrongStruct do
 
         expect{subject.buzz = 'bzzz'}
           .to raise_error NoMethodError, /undefined method `buzz='/
+      end
+
+      it 'allows setting attributes' do
+        expect(subject.city).to eq 'Bucksnort'
+        subject.city = 'Memphis'
+        expect(subject.city).to eq 'Memphis'
       end
     end
   end
