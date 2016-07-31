@@ -119,10 +119,11 @@ RSpec.describe PersonInstanceMethods do
   subject { klass.new :first_name => 'Luke', :last_name => 'Skywalker' }
 
   let(:klass) do
-    Class.new(StrongStruct) do
+    base = StrongStruct.new(:first_name, :last_name)
+    Class.new(base) do
       include PersonInstanceMethods
       extend PersonClassMethods
-    end.new(:first_name, :last_name)
+    end
   end
 
   describe '.full_name' do
@@ -153,10 +154,15 @@ Most of the time, you will probably want something closer to this:
 module MyProjectSpecHelpers
   module PersonHelper
     def person_class
-      Class.new(StrongStruct) do
+      base = StrongStruct.new(
+        :first_name,
+        :last_name,
+        :phone
+      )
+      Class.new(base) do
         include PersonInstanceMethods
         extend PersonClassMethods
-      end.new(:first_name, :last_name, :phone)
+      end
     end
   end
 end
@@ -182,7 +188,11 @@ RSpec.describe Person do
       # This line will raise an error if :phone has changed to :phone_number
       person = Person.new(mock.attributes)
 
-      expect(person.attributes.keys).to include(*mock.attributes.keys)
+      # Unlikely that this will fail if the previous line is successful,
+      # but the expectation is here for completeness.
+      mock.attributes.each do |attr|
+        expect(person).to respond_to attr
+      end
     end
   end
 end
