@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ToadJamb/strong_struct.svg?branch=master)](https://travis-ci.org/ToadJamb/strong_struct)
+
 StrongStruct
 ============
 
