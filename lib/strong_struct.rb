@@ -24,10 +24,33 @@ module StrongStruct
 
     def attributes
       hash = {}
-      self.class.accessors.each do |attr|
+      accessors.each do |attr|
         hash[attr] = send(attr)
       end
       hash
+    end
+
+    private
+
+    def accessors
+      @accessors ||= get_accessors
+    end
+
+    def get_accessors
+      klass = self.class
+
+      attrs = []
+
+      while klass.respond_to?(:accessors)
+        if klass.accessors.empty?
+          klass = klass.superclass
+        else
+          attrs = klass.accessors
+          break
+        end
+      end
+
+      attrs
     end
   end
 
