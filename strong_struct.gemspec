@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
     A structure that has strong attributes
   '.strip
   spec.homepage    = 'http://www.bitbucket.org/ToadJamb/strong_struct'
-  spec.license     = 'LGPLV3'
+  spec.license     = 'LGPL-3.0'
 
   spec.files       = Dir['lib/**/*.rb', 'license/*']
 
