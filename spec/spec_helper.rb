@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require_relative '../lib/strong_struct'
 
 base = File.expand_path(File.dirname(__FILE__))

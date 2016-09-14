@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 Gem::Specification.new do |spec|
   spec.name        = 'strong_struct'
   spec.version     = '0.0.1'
@@ -19,4 +20,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'gems'
   spec.add_development_dependency 'cane'
   spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'travis-yaml'
+  spec.add_development_dependency 'wwtd'
 end
