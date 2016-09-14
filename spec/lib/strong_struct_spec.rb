@@ -120,7 +120,7 @@ RSpec.describe StrongStruct do
         describe '.inspect' do
           it "returns #{class_name.inspect}" do
             expect(subject.inspect)
-              .to match(/^#<#<#{expected}:0x\w+>:0x\w+ @city=/)
+              .to match(/^#<#<#{expected}:0x\w+>:0x\w+(>| @city=)/)
           end
         end
       end
@@ -155,7 +155,7 @@ RSpec.describe StrongStruct do
 
       describe '.inspect' do
         it 'uses the name of the base class' do
-          expect(subject.inspect).to match(/^#<#<Foo:0x\w+>:0x\w+ @city=/)
+          expect(subject.inspect).to match(/^#<#<Foo:0x\w+>:0x\w+(>| @city=)/)
         end
       end
     end
