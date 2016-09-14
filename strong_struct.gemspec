@@ -20,4 +20,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'gems'
   spec.add_development_dependency 'cane'
   spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'travis-yaml'
+  spec.add_development_dependency 'wwtd'
 end
