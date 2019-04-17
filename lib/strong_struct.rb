@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 module StrongStruct
+  module Error
+    class ClassInUseError < StandardError; end
+  end
+
   module ClassMethods
     def accessors
       @accessors ||= []
@@ -57,17 +61,32 @@ module StrongStruct
 
   module Core
     def new(*args)
-      name = args.first.to_s.match(/^[A-Z]/) ? args.shift : nil
+      name = name_from_params(args)
 
-      klass = Class.new do
+      if name && const_defined?(name)
+        raise Error::ClassInUseError.new("Class already in use: #{name}")
+      end
+
+      klass = build_class(args)
+
+      name ? Object.const_set(name, klass) : klass
+    end
+
+    private
+
+    def build_class(attribute_names)
+      Class.new do
         extend ClassMethods
         include InstanceMethods
 
-        args.each { |arg| add_accessor(arg) }
+        attribute_names.each { |attr| add_accessor(attr) }
+
         add_accessors
       end
+    end
 
-      name ? Object.const_set(name, klass) : klass
+    def name_from_params(params)
+      params.first.to_s.match(/^[A-Z]/) ? params.shift : nil
     end
   end
 

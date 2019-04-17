@@ -130,4 +130,17 @@ RSpec.describe StrongStruct do
 
     it_behaves_like "a #{StrongStruct} instance"
   end
+
+  describe '.new' do
+    context 'given a previously used class name' do
+      let(:class_name) { 'ThereCanBeOnlyOne' }
+
+      before { described_class.new class_name, :fizz }
+
+      it 'raises an error' do
+        expect{described_class.new(class_name, :foo)}.to raise_error \
+          StrongStruct::Error::ClassInUseError
+      end
+    end
+  end
 end
