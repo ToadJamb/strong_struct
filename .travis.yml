@@ -2,7 +2,8 @@
 language: ruby
 script: bundle exec rake base --trace
 rvm:
-- 2.2.0
+- 2.4.0
+- 2.5.0
 - 2.6.0
 branches:
   only:
