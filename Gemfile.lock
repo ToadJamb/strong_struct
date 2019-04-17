@@ -11,8 +11,8 @@ GEM
     diff-lcs (1.2.5)
     gems (0.8.3)
     parallel (1.9.0)
-    rake (11.2.2)
-    rake_tasks (5.0.0)
+    rake (12.3.2)
+    rake_tasks (5.1.0)
       rake
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
@@ -44,4 +44,4 @@ DEPENDENCIES
   wwtd
 
 BUNDLED WITH
-   1.12.5
+   1.17.3
