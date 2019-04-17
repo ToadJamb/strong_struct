@@ -25,7 +25,8 @@ specs = [
 ]
 
 local = [
-  'wwtd:parallel',
+  #'wwtd:parallel',
+  :specs,
 ]
 
 Rake::Task[:release].clear
