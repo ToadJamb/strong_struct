@@ -78,6 +78,31 @@ object = my_struct.new(:id => 3, :name => 'John Doe')
 object.attributes #=> {'id' => 3, 'name' => 'John Doe', 'ssn' => nil }
 ```
 
+Naming
+------
+
+There are two ways to get `to_s`, `inspect` and friends
+to give you meaningful information
+(instead of `#<#Class0x00000>:0x00000>` or the like).
+
+The first is by simply setting the result of `StrongStruct.new` to a constant:
+`Foo = StrongStruct.new(:name)`
+
+The second is dynamically by specifying a string
+that starts with a capital letter as the first parameter:
+`StrongStruct.new('Foo', :fizz, :buzz)`
+
+*Please note*: This will create a new `Foo` constant!
+
+`StrongStruct` raises an error (`StrongStruct::Errors::ClassInUseError`)
+if you attempt to call `new` twice with the same constant string.
+
+If you REALLY need to do this, it is recommended that you create these
+constants yourself and use `StrongStruct` classes without
+specifying a constant name.
+You can also call `const_set` yourself:
+`const_set 'MyConstant', StrongStruct.new(:name)`
+
 
 Testing ActiveRecord Models
 ---------------------------
