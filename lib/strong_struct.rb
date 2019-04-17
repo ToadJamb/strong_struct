@@ -5,29 +5,6 @@ module StrongStruct
       @accessors ||= []
     end
 
-    def name
-      return super unless defined?(@name)
-      @name
-    end
-
-    def name=(value)
-      if defined?(@name)
-        raise "#{StrongStruct} pseudo-classes may not be renamed."
-      end
-
-      @name = value
-    end
-
-    def to_s
-      return super unless defined?(@name)
-      super.gsub(/^#<Class:/, "#<#{@name}:")
-    end
-
-    def inspect
-      return super unless defined?(@name)
-      super.gsub(/^#<Class:/, "#<#{@name}:")
-    end
-
     private
 
     def add_accessor(accessor)
@@ -54,34 +31,7 @@ module StrongStruct
       hash
     end
 
-    def to_s
-      base = super
-      klass_name = class_name
-      return base unless klass_name != 'Object'
-      base.gsub(/^#<#<Class:/, "#<#<#{klass_name}:")
-    end
-
-
-    def inspect
-      base = super
-      klass_name = class_name
-      return base unless klass_name != 'Object'
-      base.gsub(/^#<#<Class:/, "#<#<#{klass_name}:")
-    end
-
     private
-
-    def class_name
-      klass = self.class
-      return klass.name if klass.name
-
-      while klass.superclass
-        klass = klass.superclass
-        break if klass.name
-      end
-
-      klass.name
-    end
 
     def accessors
       @accessors ||= get_accessors
@@ -107,13 +57,17 @@ module StrongStruct
 
   module Core
     def new(*args)
-      Class.new do
+      name = args.first.to_s.match(/^[A-Z]/) ? args.shift : nil
+
+      klass = Class.new do
         extend ClassMethods
         include InstanceMethods
 
         args.each { |arg| add_accessor(arg) }
         add_accessors
       end
+
+      name ? Object.const_set(name, klass) : klass
     end
   end
 

@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
+module Count
+  extend self
+  attr_accessor :count
+end
+
 RSpec.describe StrongStruct do
   subject { instance }
 
@@ -8,56 +13,30 @@ RSpec.describe StrongStruct do
   let(:klass)    { base }
   let(:instance) { klass.new 'city' => 'Bucksnort', :state => 'TN' }
 
-  let(:class_name) { nil }
-
-  shared_examples "a #{StrongStruct} class" do
-    it 'is a class' do
-      expect(subject).to be_a Class
-    end
-
-    describe '.new' do
-      subject { instance }
-      it_behaves_like 'a StrongStruct instance'
-    end
-
-    describe '.name=' do
-      context 'given name is set a second time' do
-        before { subject.name = 'Foo' }
-
-        it 'raises an error' do
-          expect{ subject.name = 'Bar' }
-            .to raise_error(/#{StrongStruct}.*classes may not be renamed/)
-        end
+  shared_examples "primary attributes" do |name, cls, tos, inspect|
+    describe '.name' do
+      it "returns #{name}" do
+        expect(subject.name).to match name if subject.respond_to?(:name)
       end
     end
 
-    shared_examples_for 'inspected class' do |class_name, expected|
-      context "given the class name is #{class_name.inspect}" do
-        before { subject.name = class_name } if class_name
-
-        describe '.name' do
-          it "returns #{class_name.inspect}" do
-            expect = class_name ? expected : class_name
-            expect(subject.name).to eq expect
-          end
-        end
-
-        describe '.to_s' do
-          it "returns #{class_name.inspect}" do
-            expect(subject.to_s).to match(/^#<#{expected}:0x\w+>$/)
-          end
-        end
-
-        describe '.inspect' do
-          it "returns #{class_name.inspect}" do
-            expect(subject.inspect).to match(/^#<#{expected}:0x\w+>$/)
-          end
-        end
+    describe '.class' do
+      it "matches #{cls}" do
+        expect(subject.class.to_s).to match cls
       end
     end
 
-    it_behaves_like 'inspected class', 'Foo', 'Foo'
-    it_behaves_like 'inspected class', nil, 'Class'
+    describe '.to_s' do
+      it "matches #{tos}" do
+        expect(subject.to_s).to match tos
+      end
+    end
+
+    describe 'inspect' do
+      it "returns a string matching #{inspect}" do
+        expect(subject.inspect).to match inspect
+      end
+    end
   end
 
   shared_examples "a #{StrongStruct} instance" do
@@ -99,65 +78,56 @@ RSpec.describe StrongStruct do
         expect(subject['zip']).to eq nil
       end
     end
-
-    shared_examples_for 'inspected instance' do |class_name, expected|
-      context "given the class name is #{class_name.inspect}" do
-        before { klass.name = class_name } if class_name
-
-        describe '.name' do
-          it "returns #{class_name.inspect}" do
-            expect = class_name ? expected : class_name
-            expect(subject.class.name).to eq expect
-          end
-        end
-
-        describe '.to_s' do
-          it "returns #{expected.inspect}" do
-            expect(subject.to_s).to match(/^#<#<#{expected}:0x\w+>:0x\w+>$/)
-          end
-        end
-
-        describe '.inspect' do
-          it "returns #{class_name.inspect}" do
-            expect(subject.inspect)
-              .to match(/^#<#<#{expected}:0x\w+>:0x\w+(>| @city=)/)
-          end
-        end
-      end
-    end
-
-    it_behaves_like 'inspected instance', 'Foo', 'Foo'
-    it_behaves_like 'inspected instance', nil, 'Class'
   end
 
-  describe "a class created using #{StrongStruct}" do
-    subject { base }
+  base_regex     = '#<Class:0x\w+>'
+  class_regex    = /^#{base_regex}$/
 
-    it_behaves_like 'a StrongStruct class'
+  base_instance  = "#<#{base_regex}:0x\\w+%s>"
+  instance_regex = /^#{base_instance % ['']}$/
 
-    describe 'given it is used as a base class' do
-      let(:klass) { Class.new Class.new(base) }
-      it_behaves_like 'a StrongStruct class'
+  context 'given only attributes' do
+    let(:base)     { described_class.new :city, 'state', :zip }
+    let(:klass)    { base }
+    let(:instance) { klass.new 'city' => 'Bucksnort', :state => 'TN' }
+
+    context 'given the class' do
+      subject { klass }
+      it_behaves_like 'primary attributes', nil, /^Class$/,
+        class_regex, class_regex
     end
 
-    context 'given it is used as a base class with a name' do
+    context 'given an instance' do
       subject { instance }
-
-      let(:klass) { Class.new Class.new klass0 }
-
-      let(:klass0) { base.name = 'Foo'; base }
-
-      describe '.to_s' do
-        it 'uses the name of the base class' do
-          expect(subject.to_s).to match(/^#<#<Foo:0x\w+>:0x\w+>$/)
-        end
-      end
-
-      describe '.inspect' do
-        it 'uses the name of the base class' do
-          expect(subject.inspect).to match(/^#<#<Foo:0x\w+>:0x\w+(>| @city=)/)
-        end
-      end
+      inspect_regex = /^#{base_instance % [' @city="Bucksnort", @state="TN"']}$/
+      it_behaves_like 'primary attributes', nil, class_regex,
+        instance_regex, inspect_regex
     end
+
+    it_behaves_like "a #{StrongStruct} instance"
+  end
+
+  context 'given a class name' do
+    let(:base_name) { "Place#{Count.count += 1}" }
+    let(:base)      { described_class.new base_name, :city, 'state', :zip }
+    let(:klass)     { base }
+    let(:instance)  { klass.new 'city' => 'Bucksnort', :state => 'TN' }
+
+    before { Count.count ||= 0 }
+
+    context 'given the class' do
+      subject { klass }
+      it_behaves_like 'primary attributes', "Place", /^Class$/,
+        /^Place\d+$/, /^Place\d+$/
+    end
+
+    context 'given an instance' do
+      subject { instance }
+      it_behaves_like 'primary attributes', nil, /^Place\d+$/,
+        /^#<Place\d+:0x\w+>$/,
+        /^#<Place\d+:0x\w+ @city="Bucksnort", @state="TN">$/
+    end
+
+    it_behaves_like "a #{StrongStruct} instance"
   end
 end
